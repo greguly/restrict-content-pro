@@ -224,3 +224,43 @@ function rcp_restricted_message_filter( $message ) {
 	return do_shortcode( wpautop( $message ) );
 }
 add_filter( 'rcp_restricted_message', 'rcp_restricted_message_filter', 10, 1 );
+
+/**
+ * Unlink comments from restricted posts in the REST API.
+ *
+ * @param WP_REST_Response $response The response object.
+ * @param WP_Post          $post     The original post type object.
+ * @param WP_REST_Request  $request  Request used to generate the response.
+ *
+ * @since  2.8
+ * @return WP_REST_Response
+ */
+function rcp_remove_replies_from_rest_api( $response, $post, $request ) {
+	if ( rcp_is_restricted_content( $post->ID ) ) {
+		$response->remove_link( 'replies' );
+	}
+
+	return $response;
+}
+add_filter( 'rest_prepare_post', 'rcp_remove_replies_from_rest_api', 10, 3 );
+
+/**
+ * Filter comment content on restricted posts in the REST API.
+ *
+ * @param WP_REST_Response $response The response object.
+ * @param WP_Comment       $comment  The comment object.
+ * @param WP_REST_Request  $request  Request used to generate the response.
+ *
+ * @since  2.8
+ * @return WP_REST_Response
+ */
+function rcp_filter_comment_content_rest_api( $response, $comment, $request ) {
+	if ( rcp_is_restricted_content( $comment->comment_post_ID ) ) {
+		$data = $response->get_data();
+		$data['content']['rendered'] = __( 'This content is restricted to subscribers.', 'rcp' );
+		$response->set_data( $data );
+	}
+
+	return $response;
+}
+add_filter( 'rest_prepare_comment', 'rcp_filter_comment_content_rest_api', 10, 3 );
