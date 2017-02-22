@@ -366,7 +366,7 @@ class RCP_Payments {
 
 		$orderby = array_key_exists( $args['orderby'], $columns ) ? $args['orderby'] : 'id';
 
-		$payments = $wpdb->get_results( $wpdb->prepare( "SELECT {$fields} FROM " . $this->db_name . " {$where}ORDER BY {$orderby} {$order} LIMIT %d,%d;", absint( $args['offset'] ), absint( $args['number'] ) ) );
+		$payments = $wpdb->get_results( $wpdb->prepare( "SELECT {$fields} FROM " . $this->db_name . " {$where}ORDER BY {$orderby} {$order} LIMIT %d,%d;", absint( $args['offset'] ),  $args['number'] ) );
 
 		return $payments;
 
